@@ -27,7 +27,7 @@ const Course = () => {
 
   const handleProgress = ({ played }: { played: number }) => {
     if (
-      played >= 0.9 &&
+      played >= 0.8 &&
       !hasMarkedComplete &&
       currentChapter &&
       currentSection &&
