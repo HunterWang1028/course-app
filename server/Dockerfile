@@ -1,39 +1,33 @@
-# Use the AWS Lambda Node.js 20 base image
-FROM public.ecr.aws/lambda/nodejs:20 AS build
+# 使用標準 Node.js 20 作為構建環境（支援 npm install）
+FROM node:20 AS build
 
-# Set the working directory
+# 設定工作目錄
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# 複製 package.json 和 package-lock.json
 COPY package*.json ./
 
-# Install dependencies (including dev dependencies for building)
+# 安裝依賴（包含開發依賴）
 RUN npm install
 
-# Copy the rest of your application's source code
+# 複製專案程式碼
 COPY . .
 
-# Build TypeScript files
+# 編譯 TypeScript
 RUN npm run build
 
-# Remove dev dependencies
+# 移除開發依賴
 RUN npm prune --production
 
-# Use a second stage to prepare the production image
+# 使用 AWS Lambda 基底映像作為最終環境
 FROM public.ecr.aws/lambda/nodejs:20
 
-# Set the working directory
-WORKDIR ${LAMBDA_TASK_ROOT}
+# 設定 Lambda 目錄（AWS Lambda 預設工作目錄）
+WORKDIR /var/task
 
-# Copy built JavaScript files and node_modules from the build stage
-COPY --from=build /app/dist ${LAMBDA_TASK_ROOT}
-COPY --from=build /app/node_modules ${LAMBDA_TASK_ROOT}/node_modules
+# 複製已編譯的程式碼與 node_modules
+COPY --from=build /app/dist /var/task
+COPY --from=build /app/node_modules /var/task/node_modules
 
-# Copy package.json (optional)
-COPY --from=build /app/package*.json ${LAMBDA_TASK_ROOT}
-
-# Set environment variables (adjust as needed)
-ENV NODE_ENV=production
-
-# Command to start the Lambda function
+# 設定執行指令
 CMD ["index.handler"]
