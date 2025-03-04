@@ -25,9 +25,6 @@ import { useForm } from "react-hook-form";
 import DroppableComponent from "./Droppable";
 import ChapterModal from "./ChapterModal";
 import SectionModal from "./SectionModal";
-// import DroppableComponent from "./Droppable";
-// import ChapterModal from "./ChapterModal";
-// import SectionModal from "./SectionModal";
 
 const CourseEditor = () => {
   const router = useRouter();
